@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "forceupdate": 0,
+  "url": "https://raw.githubusercontent.com/LXFNice/GuoJiangLuoPan/main/GuoJiangLuoPan.apk",
+  "message": "研究版更新",
+  "title": "发现新版本",
+
+  "appVerion": "5.2.1",
+  "appTitle": "发现新版本",
+  "appContent": "研究版更新",
+  "appUrl": "https://raw.githubusercontent.com/LXFNice/GuoJiangLuoPan/main/GuoJiangLuoPan.apk",
+  "appBundle": "",
+  "background_url": "",
+  "appPackageHash": "",
+  "isUpdate": 0,
+  "type": 0,
+  "guideType": 0,
+  "width": 0,
+  "height": 0,
+  "isMyself": 0
+}
