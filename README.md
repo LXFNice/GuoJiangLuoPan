@@ -21,7 +21,7 @@
 ## 目录结构
 
 ```
-GuoJiangLuoPan.apk    安装包
+GuoJiangLuoPan.apk    安装包（存放于 Releases，见下方说明）
 update.json           自更新版本清单
 README.md             本文件
 docs/
@@ -29,6 +29,14 @@ docs/
   ├── agreement.md    服务协议
   └── privacy.md      隐私政策
 ```
+
+> **APK 为什么在 Releases 而不是仓库根目录？**
+> APK 为 129 MB，超过 GitHub 单文件 100 MB 硬上限（超过即拒绝入库，且 raw 域名同样限 100 MB）。
+> 因此 APK 以 Release 资产形式托管，`update.json` 的下载地址直接指向 Release：
+> `https://github.com/LXFNice/GuoJiangLuoPan/releases/download/v5.2.1-research/GuoJiangLuoPan.apk`
+>
+> 文档类文件（`update.json`、三个 docs、README）体积小，仍走仓库根目录的 raw 域名，
+> 这样 App 内「服务协议 / 隐私政策」页才能被 GitHub 渲染成网页。
 
 ## 构建信息
 
@@ -39,14 +47,16 @@ docs/
 | SHA-256 | `a5d10082f6d6aaf92d04e795f4788e569a39f053f4c2ab24347fda7ecbfa232a` |
 | 包名 | `com.gj.luopan.compass` |
 | versionName / versionCode | `5.2.1` / `5021` |
-| 签名 | MT 自签（V1 + V2 + V3），证书 SHA-256 `a40da80a59d170caa950cf15c18c454d47a39b26989d8b640ecd745ba71bf5dc`（**与仓库内 APK 必须一致，重编译后需同步更新本表**） |
+| 签名 | MT 自签（V1 + V2 + V3），证书 SHA-256 `a40da80a59d170caa950cf15c18c454d47a39b26989d8b640ecd745ba71bf5dc`（**与线上 APK 必须一致，重编译后需同步更新本表**） |
 | 最低 / 目标 SDK | 24 / 33，arm64-v8a |
 
 ## 发版流程
 
-1. 用 MT 管理器编译出新 APK，覆盖仓库根目录的 `GuoJiangLuoPan.apk`。
-2. 更新 `update.json`（见下）。
-3. 提交推送到 `main` 分支，用户端「检查更新」拉取新版本。
+1. 用 MT 管理器编译出新 APK。
+2. 把新 APK 作为资产挂到新的 Release tag（tag 递增，如 `v5.2.2-research`），
+   或替换 `v5.2.1-research` 里的同名资产。
+3. 更新 `update.json`：新 APK 地址 + `version` 加 1 + `isUpdate` 置 `1`。
+4. 提交 `update.json` 推送，用户端「检查更新」即可拉到新版本。
 
 ### update.json 字段
 
