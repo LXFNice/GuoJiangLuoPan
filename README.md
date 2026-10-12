@@ -43,12 +43,57 @@ docs/
 | 项 | 值 |
 |---|---|
 | 文件 | `GuoJiangLuoPan.apk` |
-| 大小 | 129,405,592 字节 |
-| SHA-256 | `a5d10082f6d6aaf92d04e795f4788e569a39f053f4c2ab24347fda7ecbfa232a` |
+| 大小 | 129,634,968 字节 |
+| SHA-256 | `f26c364b39856daf906817e0162d1ee37f01af056b172a06164e45488a494066` |
 | 包名 | `com.gj.luopan.compass` |
 | versionName / versionCode | `5.2.1` / `5021` |
 | 签名 | MT 自签（V1 + V2 + V3），证书 SHA-256 `a40da80a59d170caa950cf15c18c454d47a39b26989d8b640ecd745ba71bf5dc`（**与线上 APK 必须一致，重编译后需同步更新本表**） |
 | 最低 / 目标 SDK | 24 / 33，arm64-v8a |
+
+### 本次变更（v5.2.1-research r3）
+
+r2 已完成底部 Tab 栏 5→3（移除「服务」「消息」）。r3 在首页与「我的」页做深度精简：
+
+| 页面 | 变更 |
+|---|---|
+| 首页 | ① 直接罗列原「更多」页的 7 组工具（排盘/祈福/每日/学习/Ai/罗盘/其他），无需再点「更多」；② 过滤顶部横幅卡片（悬赏问答/张三/续费VIP）；③ 移除祈福台入口与「测算」tab |
+| 我的 | 整页只保留「排盘设置」与「更多操作」：删除罗盘VIP卡、我的财富（元宝/金豆/优惠券/会员特权）、我的订单（测算/咨询/订单/悬赏）三个区块，以及设置列表里的其他 6 项 |
+
+首页工具铺列的实现：`HomeFragment` 的 pageId 由 761/592 改为 596（原「更多」页容器 pageId），首页即按「更多」页数据源渲染全部工具组；横幅卡片在渲染层按卡片类型过滤，不影响下拉刷新与工具点击。
+
+**「我的」页崩溃修复（r3 关键坑）**：删除上述三个区块时，被删区块内负责把 v11 归一为 int 的
+`const/16 v11, 0x230`（rememberComposableLambda 的 key 与 changed-flags 常量）一并被删，
+导致幸存代码末尾的 section composable 调用读 v11 时类型冲突：
+
+```
+java.lang.VerifyError: Verifier rejected class ...HomeMineFragment$InitView$1$3:
+void ...$InitView$1$3.镯鈷昳墒鸐鄘(Composer, int) failed to verify:
+[0xFC] register v11 has type Conflict but expected Integer
+```
+
+该错误在 `HomeMineFragment.坦槾砓東鄩` 的 `new-instance $InitView$1$3`（类加载/校验点）抛出，
+被友盟 UCrash 的 uncaughtException 吞掉（logcat 无 FATAL，只有 `Process is going to kill itself`），
+表现为「我的」页打开即闪退。定位手段：在 InitView 内部 4 个关键路径点埋 `Log.e("GJAD", tag)` 探针
+（colorResource / LiveData check-cast / RefreshLayoutState / VerticalRefreshableLayout），
+最后一条探针 IV_STATES 之后崩溃，再拉取设备上 `crashsdk/ucrash/*.log.gz` 拿到完整堆栈。
+
+修法：在幸存的那个 section 调用前补回 `const/16 v11, 0x230`，恢复原始寄存器状态。
+**教训**：删除 smali 区块时，必须检查「区块内写入、区块外读取」的寄存器——v11 这类跨区块复用的
+归一化常量最隐蔽，线性扫寄存器用法发现不了，要靠差分分析（orig/post 读点状态对比）或实机验证。
+
+#### 附：r2 的 Tab 精简技术要点
+
+Tab 由 `HomeViewModel.鹇劔呶鮕痿巻叝灠汊()` 动态绑定，分两条分支取列表——
+
+| 条件 | 取用的方法 | 本次是否改动 |
+|---|---|---|
+| `AppStatusManager.嘇膅寞巈獿钏蔥崑兰鄓秒梟()` 为真（已登录） | `脁太圐窷猶杘駪煇()`，实现在 `FSHomeTabGenerateImpl` | ✅ |
+| 否则（未登录，实际走这条） | `镭凯娷噬麎顴糦缾塳莖詳()`，实现在父类 `HomeTabHandler$HomeTabFragmentGenerate` | ✅ |
+
+两条分支都必须改，否则未登录状态下底栏仍显示 5 项。
+
+底栏布局 `res/Fhe.xml` 里固定写死 5 个 `RadioButtonWithRedPointNotify`，代码按索引绑定
+（`List.get(index)`），超出列表长度的会被自动 `setVisibility(GONE)`，所以无需改布局。
 
 ## 发版流程
 
