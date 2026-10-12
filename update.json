@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "forceupdate": 0,
   "url": "https://github.com/LXFNice/GuoJiangLuoPan/releases/download/v5.2.1-research/GuoJiangLuoPan.apk",
   "message": "研究版更新",
@@ -12,7 +12,7 @@
   "appBundle": "",
   "background_url": "",
   "appPackageHash": "",
-  "isUpdate": 0,
+  "isUpdate": 1,
   "type": 0,
   "guideType": 0,
   "width": 0,
