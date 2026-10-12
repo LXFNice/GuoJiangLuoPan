@@ -43,8 +43,8 @@ docs/
 | 项 | 值 |
 |---|---|
 | 文件 | `GuoJiangLuoPan.apk` |
-| 大小 | 129,634,968 字节 |
-| SHA-256 | `f26c364b39856daf906817e0162d1ee37f01af056b172a06164e45488a494066` |
+| 大小 | 129,782,424 字节 |
+| SHA-256 | `8371a406ab3d51ae6e9eb8ba786da0568f2128795fd24ba11055f75cfeabbf59` |
 | 包名 | `com.gj.luopan.compass` |
 | versionName / versionCode | `5.2.1` / `5021` |
 | 签名 | MT 自签（V1 + V2 + V3），证书 SHA-256 `a40da80a59d170caa950cf15c18c454d47a39b26989d8b640ecd745ba71bf5dc`（**与线上 APK 必须一致，重编译后需同步更新本表**） |
@@ -80,6 +80,25 @@ void ...$InitView$1$3.镯鈷昳墒鸐鄘(Composer, int) failed to verify:
 修法：在幸存的那个 section 调用前补回 `const/16 v11, 0x230`，恢复原始寄存器状态。
 **教训**：删除 smali 区块时，必须检查「区块内写入、区块外读取」的寄存器——v11 这类跨区块复用的
 归一化常量最隐蔽，线性扫寄存器用法发现不了，要靠差分分析（orig/post 读点状态对比）或实机验证。
+
+### 紫微命盘解读付费墙移除（r4）
+
+紫微排盘（`ZiWeiAnalysisActivity` / 命书 `ZiWeiMingShuFragment`）原有付费墙：
+
+- 进入命盘分析页即弹「·紫微命盘解读·」购买框：命盘解读 ¥98、紫微全解+八字全解 ¥228、VIP 会员 ¥128/3 个月、¥288/1 年
+- 页内常驻「解锁全部」悬浮按钮，点击同样弹购买框
+
+实现：付费弹窗统一由 `FortuneOrAnalysisPayDialogUtil` 的两个公开方法构建并 show——
+`雀啘阇噛厗峽冞(FragmentActivity, Z, String, Function2)`（命书/命盘解读）与
+`饈禼慯荀悉睥鹦翽(FragmentActivity, Z, I, String, Function2)`（流年运势）。
+将两个方法体替换为直接 `return-void`（保留签名与注解），所有调用方均不再弹窗；
+「解锁全部」按钮的点击链路（埋点 + `嗕偀卺邬渜胎迤孙琖肃毨()` → 上述方法）随之成为无动作死按钮。
+命书/流年的「全部解读」按钮渲染方法（`ZiWeiMingShuFragment.衛艞庴` /
+`ZiWeiFortuneYearFragment.铿紫摏`）同样清空，命书与流年页不再渲染该按钮；
+排盘页（命宫 tab）的悬浮按钮为另一处 Compose 渲染，视觉残留但点击无任何反应。
+
+实机验证：命盘页与命书页进入即显示完整内容（命宫/主星/星象/福德宫/官位等），
+无弹窗、无计费跳转；「解锁全部」点击无动作；首页 7 组工具与「我的」页 2 项保持 r3 成果。
 
 #### 附：r2 的 Tab 精简技术要点
 
