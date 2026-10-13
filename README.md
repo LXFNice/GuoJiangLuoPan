@@ -116,11 +116,17 @@ Tab 由 `HomeViewModel.鹇劔呶鮕痿巻叝灠汊()` 动态绑定，分两条�
 
 ## 发版流程
 
-1. 用 MT 管理器编译出新 APK。
-2. 把新 APK 作为资产挂到新的 Release tag（tag 递增，如 `v5.2.2-research`），
-   或替换 `v5.2.1-research` 里的同名资产。
-3. 更新 `update.json`：新 APK 地址 + `version` 加 1 + `isUpdate` 置 `1`。
-4. 提交 `update.json` 推送，用户端「检查更新」即可拉到新版本。
+1. 用 MT 管理器编译出新 APK（同时把 `AndroidManifest.xml` 的 `versionName`/`versionCode` 递增）。
+2. **新增一个 Release**（tag 递增，如 `v5.2.1-research-r5`），上传新 APK，并在 Release 正文写本次更新日志。
+   ⚠️ **不要替换旧 Release 里的资产**——每次发版都是"新增 Release + 新日志"，旧版本保持可回溯。
+3. 更新 `update.json`：`appVerion` 改成与新 APK 一致的版本号、`appUrl`/`url` 指向新 Release 的资产、
+   `version` 加 1、`appContent` 写本次更新日志、`isUpdate` 置 `1`。
+4. 提交 `update.json` 推送，并**刷新 jsDelivr 缓存**：
+   `curl https://purge.jsdelivr.net/gh/LXFNice/GuoJiangLuoPan@main/update.json`
+5. 用户端「更多设置 → 点击版本号」即可触发检查更新并拉到新版本。
+
+> `appVerion` 必须与线上 APK 的 `versionName` 完全一致，否则已是最新的用户端会一直提示更新；
+> 也必须与本机 `versionName` **不同**才会弹出更新框（相同则只 toast「您用的是最新版本」）。
 
 ### update.json 字段
 
@@ -134,7 +140,15 @@ App 内置的更新检查（`oms.mmc.version.update.UpdateRepository`）用 `Jso
 发新版本时把 `version` 加 1、把 `isUpdate` 置 `1`、更新 `appUrl`/`url` 指向新 APK 即可。
 
 > App 内的更新地址已在 `oms.mmc.version.update.UpdateConfig` 中改为
-> `https://raw.githubusercontent.com` + `/LXFNice/GuoJiangLuoPan/main/update.json`。
+> `https://cdn.jsdelivr.net/gh` + `/LXFNice/GuoJiangLuoPan@main/update.json`
+> （即 `https://cdn.jsdelivr.net/gh/LXFNice/GuoJiangLuoPan@main/update.json`）。
+>
+> 为什么不用 `raw.githubusercontent.com`：国内 DNS 会把该域名解析到 `185.199.111.133`
+> 这类不可达 IP，OkHttp 直连 60s 超时，检查更新会一直卡在进度框。
+> jsDelivr 是 GitHub 仓库的官方 CDN 镜像（Cloudflare 节点），内容仍来自本仓库，国内可达。
+>
+> **手动入口**：`我的 → 更多操作 → 更多设置 → 点击「版本号」`，会显示「版本更新/正在检查更新…」
+> 进度框并请求上面的 `update.json`；有新版则弹出更新框，无新版则 toast「您用的是最新版本」。
 
 ## 技术要点（复现笔记）
 
