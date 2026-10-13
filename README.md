@@ -6,6 +6,7 @@
 
 | 版本 | 说明 |
 | --- | --- |
+| 5.2.1.11 (5028) | r11：修复检查更新取到旧数据（禁用 HttpURLConnection 缓存 + 时间戳） |
 | 5.2.1.10 (5027) | r10：新增独立「检查更新」页面（当前版本 + 检查更新按钮 + 弹框） |
 | 5.2.1.9 (5026) | r9：点击版本号可检查更新（弹框 + 立即安装下载） |
 | 5.2.1.7 (5024) | r7：修复弹框路径；更新源切到直连镜像 |
@@ -30,6 +31,10 @@
 | 网络异常 | 弹出「检查更新失败」对话框 |
 
 判断依据：`update.json` 的 `appVerion` 与本地 `versionName` 比较，相等即视为已是最新。
+
+> 注意：Android 的 `HttpURLConnection` **默认带响应缓存**，发版后 App 内可能长时间读到旧 `update.json`。
+> 本版已通过 `setUseCaches(false)` + 请求头 `Cache-Control: no-cache` + URL 时间戳解决，
+> 每次点「检查更新」都会拉取线上最新内容。
 
 **更新源**（App 内 `oms.mmc.version.update.UpdateConfig`）：
 
