@@ -6,7 +6,7 @@
   "title": "发现新版本",
   "appVerion": "5.2.1.5",
   "appTitle": "发现新版本",
-  "appContent": "1. 更多设置→点击版本号可直接检查更新，已对接本仓库\\n2. 更新源改走 GitHub CDN 镜像，修复国内网络检查超时\\n3. 版本号 5.2.1.5 (5022)\\n4. 移除紫微命盘解读付费项",
+  "appContent": "1. 更多设置→点击版本号可直接检查更新，已对接本仓库\n2. 更新源改走 GitHub CDN 镜像，修复国内网络检查超时\n3. 版本号 5.2.1.5 (5022)\n4. 移除紫微命盘解读付费项",
   "appUrl": "https://github.com/LXFNice/GuoJiangLuoPan/releases/download/v5.2.1-research-r5/GuoJiangLuoPan.apk",
   "appBundle": "",
   "background_url": "",
